@@ -4,13 +4,20 @@
 
 #include <cubos/engine/prelude.hpp>
 
-struct Obstacle
+struct Armor
 {
     CUBOS_REFLECT;
 
     glm::vec3 velocity{0.0F, 0.0F, -1.0F};
     float killZ{0.0F};
+
+    bool active{false};
 };
 
-void obstaclePlugin(cubos::engine::Cubos& cubos);
-void callResetGame();
+void armorPlugin(cubos::engine::Cubos& cubos);
+
+
+
+
+
+

@@ -10,6 +10,8 @@ struct Player
     float laneWidth{1.0F}; // Width of the lane
     int lane{0};           // Current lane
     int targetLane{0};     // Target lane
+
+    void reset();           //Function to reset the player´s state
 };
 
 void playerPlugin(cubos::engine::Cubos& cubos);

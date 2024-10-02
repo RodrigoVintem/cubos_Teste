@@ -16,3 +16,4 @@ struct Spawner
 };
 
 void spawnerPlugin(cubos::engine::Cubos& cubos);
+void resetGameSpeedMultiplier();

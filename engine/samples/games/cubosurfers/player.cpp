@@ -57,3 +57,7 @@ void playerPlugin(cubos::engine::Cubos& cubos)
         }
     });
 }
+
+
+
+

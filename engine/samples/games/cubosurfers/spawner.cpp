@@ -9,6 +9,9 @@
 
 using namespace cubos::engine;
 
+// Aumenta a velocidade ao longo do tempo, reduzindo o "period"
+static float speedMultiplier = 1.0f;
+
 CUBOS_REFLECT_IMPL(Spawner)
 {
     return cubos::core::ecs::TypeBuilder<Spawner>("Spawner")
@@ -18,6 +21,10 @@ CUBOS_REFLECT_IMPL(Spawner)
         .withField("laneWidth", &Spawner::laneWidth)
         .withField("accumulator", &Spawner::accumulator)
         .build();
+}
+
+void resetGameSpeedMultiplier() {
+    speedMultiplier = 1.0f; // Reseta o multiplicador ao valor inicial
 }
 
 void spawnerPlugin(cubos::engine::Cubos& cubos)
@@ -31,10 +38,16 @@ void spawnerPlugin(cubos::engine::Cubos& cubos)
         .call([](Commands commands, const DeltaTime& dt, Assets& assets, Query<Spawner&, const Position&> spawners) {
             for (auto [spawner, position] : spawners)
             {
+                //Atualiza o tempo do acumulador
                 spawner.accumulator += dt.value();
-                if (spawner.accumulator >= spawner.period)
+
+                speedMultiplier += 0.09f * dt.value(); //Ajusta a taxa de aumento da velocidade
+
+                float newPeriod = spawner.period / speedMultiplier;
+
+                if (spawner.accumulator >= newPeriod)
                 {
-                    spawner.accumulator -= spawner.period;
+                    spawner.accumulator -= newPeriod;
 
                     Position spawnPosition = position;
                     int offset = (rand() % 3) - 1;

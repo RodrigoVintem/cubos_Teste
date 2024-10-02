@@ -11,6 +11,7 @@
 #include "obstacle.hpp"
 #include "player.hpp"
 #include "spawner.hpp"
+#include "armor.hpp"
 
 using namespace cubos::engine;
 
@@ -26,6 +27,7 @@ int main()
     cubos.plugin(spawnerPlugin);
     cubos.plugin(obstaclePlugin);
     cubos.plugin(playerPlugin);
+    cubos.plugin(armorPlugin);
 
     cubos.startupSystem("configure settings").tagged(settingsTag).call([](Settings& settings) {
         settings.setString("assets.io.path", SAMPLE_ASSETS_FOLDER);
@@ -56,14 +58,26 @@ int main()
             }
         });
 
-    cubos.system("detect player vs obstacle collisions")
-        .call([](Query<const Player&, const CollidingWith&, const Obstacle&> collisions) {
-            for (auto [player, collidingWith, obstacle] : collisions)
-            {
-                CUBOS_INFO("Player collided with an obstacle!");
-                (void)player; // here to shut up 'unused variable warning', you can remove it
-            }
-        });
+   cubos.system("detect player vs obstacle collisions")
+    .call([](Commands cmds, Query<Player&, const CollidingWith&, const Obstacle&> collisions, const Assets& assets, Query<Entity> all) {
+        for (auto [player, collidingWith, obstacle] : collisions)
+        {
+            CUBOS_INFO("Player collided with an obstacle!");
+
+             for (auto [ent] : all)
+                {
+                    cmds.destroy(ent);
+                }
+
+                callResetGame(); // Chama a função para redefinir o estado do jogo
+                resetGameSpeedMultiplier(); // Chama a função para redefinir o multiplicador de velocidade
+                cmds.spawn(assets.read(SceneAsset)->blueprint);
+
+            CUBOS_INFO("destroyed player and obstacle");
+
+            return; // Sai após a colisão para evitar múltiplos resets
+        }
+    });
 
     cubos.run();
 }

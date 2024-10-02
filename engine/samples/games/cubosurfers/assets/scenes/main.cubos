@@ -75,6 +75,22 @@
                 "laneWidth": 9
             }
         },
+
+        "armor-spawner": {
+            "cubos::engine::Position": {
+                "x": 0,
+                "y": 0,
+                "z": 300
+            },
+            "Spawner": {
+                "scene": "a15272c5-08c9-47f5-9b24-1192332580a8",
+                "sceneRoot": "base",
+                "period": 1.0,
+                "laneWidth": 9
+            }
+        },
+
+
         "sun": {
             "cubos::engine::DirectionalLight": {
                 "color": {

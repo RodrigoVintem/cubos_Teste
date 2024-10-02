@@ -1,4 +1,4 @@
-#include "obstacle.hpp"
+#include "armor.hpp"
 
 #include <cubos/core/ecs/reflection.hpp>
 #include <cubos/core/reflection/external/glm.hpp>
@@ -10,46 +10,49 @@
 
 using namespace cubos::engine;
 
-static float speedMultiplier = 1.0f; // Multiplicador que aumenta ao longo do tempo
+static float speedMultiplier = 1.0f; // Multiplicador que aumenta ao longo do tempo (caso aplicável ao power-up)
 
-CUBOS_REFLECT_IMPL(Obstacle)
+// Refletir a estrutura Armor
+CUBOS_REFLECT_IMPL(Armor)
 {
-    return cubos::core::ecs::TypeBuilder<Obstacle>("Obstacle")
-        .withField("velocity", &Obstacle::velocity)
-        .withField("killZ", &Obstacle::killZ)
+    return cubos::core::ecs::TypeBuilder<Armor>("Armor")
+        .withField("velocity", &Armor::velocity)
+        .withField("killZ", &Armor::killZ)
         .build();
 }
 
+// Função para resetar o estado do jogo, se necessário
 void resetGame() {
     speedMultiplier = 1.0f; // Reseta o multiplicador ao valor inicial
 }
 
-void obstaclePlugin(cubos::engine::Cubos& cubos)
+// Função que define o comportamento do plugin da armadura
+void armorPlugin(cubos::engine::Cubos& cubos)
 {
     cubos.depends(assetsPlugin);
     cubos.depends(transformPlugin);
 
-    cubos.component<Obstacle>();
+    cubos.component<Armor>(); // Registrando o componente Armor
 
-    cubos.system("move obstacles")
-        .call([](Commands cmds, const DeltaTime& dt, Query<Entity, const Obstacle&, Position&> obstacles) {
+    cubos.system("move armor")
+        .call([](Commands cmds, const DeltaTime& dt, Query<Entity, const Armor&, Position&> armors) {
 
             static float speedIncrease = 0.1f; // Taxa de aumento da velocidade
 
             // Aumenta a velocidade ao longo do tempo
             speedMultiplier += speedIncrease * dt.value();
             
-            for (auto [ent, obstacle, position] : obstacles)
+            for (auto [ent, armor, position] : armors)
             {
                 // Atualiza a posição do obstáculo
-                glm::vec3 adjustedVelocity = obstacle.velocity * speedMultiplier;
+                glm::vec3 adjustedVelocity = armor.velocity * speedMultiplier;
 
                 // Atualiza a posição do obstáculo
                 position.vec += adjustedVelocity * dt.value();
 
                 position.vec.y = glm::abs(glm::sin(position.vec.z * 0.15F)) * 1.5F;
 
-                if (position.vec.z < obstacle.killZ)
+                if (position.vec.z < armor.killZ)
                 {
                     cmds.destroy(ent);
                 }
@@ -57,6 +60,7 @@ void obstaclePlugin(cubos::engine::Cubos& cubos)
         });
 }
 
+// Função que reseta o jogo (caso aplicável)
 void callResetGame() {
     resetGame();
 }
