@@ -14,8 +14,6 @@ struct Armor
 };
 
 void armorPlugin(cubos::engine::Cubos& cubos);
-void setArmorActive(bool active);
-bool isActive();
 void resetGame2();
 
 

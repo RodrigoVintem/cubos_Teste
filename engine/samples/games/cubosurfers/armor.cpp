@@ -11,7 +11,6 @@
 using namespace cubos::engine;
 
 static float speedMultiplier = 1.0f; // Multiplicador que aumenta ao longo do tempo (caso aplicável ao power-up)
-static bool shieldActive = false; // Define se o escudo está ativo ou não
 
 // Refletir a estrutura Armor
 CUBOS_REFLECT_IMPL(Armor)
@@ -61,14 +60,3 @@ void armorPlugin(cubos::engine::Cubos& cubos)
         });
 }
 
-void setArmorActive(bool active) {
-    shieldActive = active; // Define o estado do escudo
-}
-
-bool isActive() {
-    if (shieldActive) {
-        return 1; // Retorna 1 se o escudo estiver ativo
-    } else {
-        return 0; // Retorna 0 se o escudo não estiver ativo
-    }
-}
