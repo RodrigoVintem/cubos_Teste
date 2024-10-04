@@ -11,6 +11,7 @@
 using namespace cubos::engine;
 
 static float speedMultiplier = 1.0f; // Multiplicador que aumenta ao longo do tempo (caso aplicável ao power-up)
+static bool shieldActive = false; // Define se o escudo está ativo ou não
 
 // Refletir a estrutura Armor
 CUBOS_REFLECT_IMPL(Armor)
@@ -22,7 +23,7 @@ CUBOS_REFLECT_IMPL(Armor)
 }
 
 // Função para resetar o estado do jogo, se necessário
-void resetGame() {
+void resetGame2() {
     speedMultiplier = 1.0f; // Reseta o multiplicador ao valor inicial
 }
 
@@ -60,7 +61,14 @@ void armorPlugin(cubos::engine::Cubos& cubos)
         });
 }
 
-// Função que reseta o jogo (caso aplicável)
-void callResetGame() {
-    resetGame();
+void setArmorActive(bool active) {
+    shieldActive = active; // Define o estado do escudo
+}
+
+bool isActive() {
+    if (shieldActive) {
+        return 1; // Retorna 1 se o escudo estiver ativo
+    } else {
+        return 0; // Retorna 0 se o escudo não estiver ativo
+    }
 }

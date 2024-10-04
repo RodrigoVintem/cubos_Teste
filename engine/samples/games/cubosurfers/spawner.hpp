@@ -10,7 +10,7 @@ struct Spawner
 
     cubos::engine::Asset<cubos::engine::Scene> scene; // Scene which will be spawned
     std::string sceneRoot;                            // Root entity of the scene
-    float period{1.0F};                               // Time between spawns in seconds
+    float period{2.0F};                               // Time between spawns in seconds
     float laneWidth{1.0F};                            // Width of the lane
     float accumulator{0.0F};                          // Time accumulator
 };

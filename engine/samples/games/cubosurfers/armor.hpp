@@ -11,11 +11,12 @@ struct Armor
     glm::vec3 velocity{0.0F, 0.0F, -1.0F};
     float killZ{0.0F};
 
-    bool active{false};
 };
 
 void armorPlugin(cubos::engine::Cubos& cubos);
-
+void setArmorActive(bool active);
+bool isActive();
+void resetGame2();
 
 
 

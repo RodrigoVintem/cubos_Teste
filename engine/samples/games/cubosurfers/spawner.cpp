@@ -41,7 +41,7 @@ void spawnerPlugin(cubos::engine::Cubos& cubos)
                 //Atualiza o tempo do acumulador
                 spawner.accumulator += dt.value();
 
-                speedMultiplier += 0.09f * dt.value(); //Ajusta a taxa de aumento da velocidade
+                speedMultiplier += 0.05f * dt.value(); //Ajusta a taxa de aumento da velocidade
 
                 float newPeriod = spawner.period / speedMultiplier;
 
@@ -52,8 +52,9 @@ void spawnerPlugin(cubos::engine::Cubos& cubos)
                     Position spawnPosition = position;
                     int offset = (rand() % 3) - 1;
                     spawnPosition.vec.x += static_cast<float>(offset) * spawner.laneWidth;
-
+                   
                     commands.spawn(assets.read(spawner.scene)->blueprint).add(spawner.sceneRoot, spawnPosition);
+                    
                 }
             }
         });

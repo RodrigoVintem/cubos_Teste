@@ -21,6 +21,8 @@ static const Asset<InputBindings> InputBindingsAsset = AnyAsset("b20900a4-20ee-4
 
 int main()
 {
+
+    //CUBOS_FAIL("teste");
     Cubos cubos{};
 
     cubos.plugin(defaultsPlugin);
@@ -58,26 +60,57 @@ int main()
             }
         });
 
-   cubos.system("detect player vs obstacle collisions")
-    .call([](Commands cmds, Query<Player&, const CollidingWith&, const Obstacle&> collisions, const Assets& assets, Query<Entity> all) {
-        for (auto [player, collidingWith, obstacle] : collisions)
-        {
-            CUBOS_INFO("Player collided with an obstacle!");
+    //Comentario para teste de print
+    CUBOS_INFO("Estou aqui");
 
-             for (auto [ent] : all)
-                {
-                    cmds.destroy(ent);
+    cubos.system("detect player vs obstacle collisions")
+        .call([](Commands cmds, Query<Player&, const CollidingWith&, const Obstacle&> collisions, const Assets& assets, Query<Entity> all) {
+            for (auto [player, collidingWith, obstacle] : collisions)
+            {
+                CUBOS_INFO("Player collided with an obstacle!");
+
+                if (isActive()) {
+                    // Se activeArmor for true, defina a variável em armor.cpp como false e saia da função
+                    setArmorActive(false); // Supondo que setArmorActive seja a função para definir a variável
+                    CUBOS_INFO("Armor was active, deactivating armor and exiting.");
+                    return;
                 }
 
-                callResetGame(); // Chama a função para redefinir o estado do jogo
-                resetGameSpeedMultiplier(); // Chama a função para redefinir o multiplicador de velocidade
-                cmds.spawn(assets.read(SceneAsset)->blueprint);
+                for (auto [ent] : all)
+                   {
+                       cmds.destroy(ent);
+                   }
+                   CUBOS_INFO("destroyed player and obstacle");
+                   callResetGame(); // Chama a função para redefinir o estado do jogo
+                   resetGameSpeedMultiplier(); // Chama a função para redefinir o multiplicador de velocidade
+                   void resetGame2(); // Chama a função para redefinir o estado do jogo
+                   cmds.spawn(assets.read(SceneAsset)->blueprint);
+                   
+                CUBOS_INFO("destroyed player and obstacle");
 
-            CUBOS_INFO("destroyed player and obstacle");
+                return; // Sai após a colisão para evitar múltiplos resets
+            }
+        });
 
-            return; // Sai após a colisão para evitar múltiplos resets
-        }
-    });
+    cubos.system("detect player vs armor collisions")
+        .call([](Commands cmds, Query<Player&, const CollidingWith&, const Armor&> collisions, Query<Entity> all) {
+            for (auto [player, collidingWith, armor] : collisions)
+            {
+                CUBOS_INFO("Player collided with an armor!");
+
+                for (auto [ent] : all)
+                    {
+                        cmds.destroy(ent);
+                    }
+
+                    setArmorActive(true); // Chama a função para dar mais um escudo ao jogador/ mais uma vida
+
+                CUBOS_INFO("destroyed armor");
+
+                return; // Sai após a colisão para evitar múltiplos resets
+            }
+        });
 
     cubos.run();
 }
+
