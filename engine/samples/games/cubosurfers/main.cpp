@@ -4,6 +4,8 @@
 #include <cubos/engine/input/plugin.hpp>
 #include <cubos/engine/render/lights/environment.hpp>
 #include <cubos/engine/render/voxels/palette.hpp>
+#include <cubos/engine/render/voxels/load.hpp> //Load voxel grid
+#include <cubos/engine/render/voxels/grid.hpp> // Include the header for RenderVoxelGrid
 #include <cubos/engine/scene/plugin.hpp>
 #include <cubos/engine/settings/plugin.hpp>
 #include <cubos/engine/voxels/plugin.hpp>
@@ -18,6 +20,8 @@ using namespace cubos::engine;
 static const Asset<Scene> SceneAsset = AnyAsset("ee5bb451-05b7-430f-a641-a746f7009eef");
 static const Asset<VoxelPalette> PaletteAsset = AnyAsset("101da567-3d23-46ae-a391-c10ec00e8718");
 static const Asset<InputBindings> InputBindingsAsset = AnyAsset("b20900a4-20ee-4caa-8830-14585050bead");
+static const Asset<VoxelGrid> ArmorAsset = AnyAsset("4892c2f3-10b3-4ca7-9de3-822b77a0ba7e");
+static const Asset<VoxelGrid> PlayerAsset = AnyAsset("57d1b886-8543-4b8b-8f78-d911e9c4f896");
 
 int main()
 {
@@ -66,15 +70,18 @@ int main()
     CUBOS_INFO("Estou aqui");
 
         cubos.system("detect player vs obstacle collisions")
-            .call([&isActive](Commands cmds, Query<Player&, const CollidingWith&, Entity, const Obstacle&> collisions, const Assets& assets, Query<Entity> all) {
-                for (auto [player, collidingWith, entity, obstacle] : collisions)
+            .call([&isActive](Commands cmds, Query<Entity, RenderVoxelGrid&, Player&, const CollidingWith&, Entity, const Obstacle&> collisions, const Assets& assets, Query<Entity> all) {
+                for (auto [playerEntity, renderVoxelGrid, player, collidingWith, entity, obstacle] : collisions)
                 {
                     CUBOS_INFO("Player collided with an obstacle!");
 
                     if (isActive) {
-                        // Se activeArmor for true, defina a variável em armor.cpp como false e saia da função
-                        isActive = false; // Supondo que setArmorActive seja a função para definir a variável
+                        
+                        isActive = false; 
                         CUBOS_INFO("Armor was active, deactivating armor and exiting.");
+
+                        renderVoxelGrid.asset = PlayerAsset;
+                        cmds.add(playerEntity, LoadRenderVoxels{});
 
                         // Destruir apenas o obstáculo colidido
                         cmds.destroy(entity);
@@ -87,9 +94,9 @@ int main()
                         }
 
                         CUBOS_INFO("destroyed player and obstacle");
-                        callResetGame(); // Chama a função para redefinir o estado do jogo
-                        resetGameSpeedMultiplier(); // Chama a função para redefinir o multiplicador de velocidade
-                        resetGame2(); // Chama a função para redefinir o estado do jogo
+                        callResetGame(); 
+                        resetGameSpeedMultiplier(); 
+                        resetGame2(); 
                         cmds.spawn(assets.read(SceneAsset)->blueprint);
 
                         CUBOS_INFO("destroyed player and obstacle");
@@ -98,20 +105,23 @@ int main()
                     return;
                 }
             });
+    
+
         cubos.system("detect player vs armor collisions")
-            .call([&isActive](Commands cmds, Query<Player&, const CollidingWith&, Entity, const Armor&> collisions) {
-                for (auto [player, collidingWith, entity, armor] : collisions)
+            .call([&isActive](Commands cmds, Query<Entity, RenderVoxelGrid&, Player&, const CollidingWith&, Entity, const Armor&> collisions) {
+                for (auto [playerEntity, renderVoxelGrid,player, collidingWith, entity, armor] : collisions)
                 {
                     CUBOS_INFO("Player collided with an armor!");
+                    isActive = true;
 
-                    isActive = true; // Define a variável isActive como true
+                    renderVoxelGrid.asset = ArmorAsset;
+                    cmds.add(playerEntity, LoadRenderVoxels{});  
 
-                    // Destruir apenas a armadura e não todas as entidades
                     cmds.destroy(entity);
 
-                    CUBOS_INFO("destroyed armor");
+                    CUBOS_INFO("Destroyed armor");
 
-                    return; // Sai após a colisão para evitar múltiplos resets
+                    return; 
                 }
             });
 
